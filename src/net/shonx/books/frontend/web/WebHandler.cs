@@ -6,6 +6,18 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Identity.Web.UI;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
+//*************************************************************
+// ██     ██  █████  ██████  ███    ██ ██ ███    ██  ██████  
+// ██     ██ ██   ██ ██   ██ ████   ██ ██ ████   ██ ██       
+// ██  █  ██ ███████ ██████  ██ ██  ██ ██ ██ ██  ██ ██   ███ 
+// ██ ███ ██ ██   ██ ██   ██ ██  ██ ██ ██ ██  ██ ██ ██    ██ 
+//  ███ ███  ██   ██ ██   ██ ██   ████ ██ ██   ████  ██████  
+//*************************************************************
+// ON AZURE, THE ENVIRONMENT VARIABLE
+// `ASPNETCORE_FORWARDEDHEADERS_ENABLED`
+// MUST BE SET TO `true` IN ORDER FOR LOGIN
+// TO WORK CORRECTLY.
+
 public class WebHandler
 {
     private readonly WebApplicationBuilder builder;
@@ -33,14 +45,7 @@ public class WebHandler
             options.Filters.Add(new AuthorizeFilter(policy));
         }).AddMicrosoftIdentityUI();
 
-
         app = builder.Build();
-
-        app.Use((context, next) =>
-        {
-            context.Request.Scheme = "https";
-            return next();
-        });
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -60,7 +65,7 @@ public class WebHandler
 
         app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Home}/{action=Index}/{ISBN?}");
+            pattern: "{controller=Home}/{action=Index}/{ID?}");
     }
 
     private IEnumerable<string> GetScopes()
@@ -70,6 +75,7 @@ public class WebHandler
             yield return scope.Value ?? throw new NullReferenceException();
         }
     }
+
     public void Run()
     {
         BookIndex.Initalize();

@@ -54,9 +54,9 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Book/Edit/{ISBN}
+    // GET: /Book/Edit/{ID}
     [HttpGet]
-    public async Task<IActionResult> Edit(string? ISBN)
+    public async Task<IActionResult> Edit(string? ID)
     {
         JwtToken? token = await Token();
         if (token is null)
@@ -64,16 +64,16 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
         AdminAuth auth = new(token);
         if (!auth.IsAdmin)
             return RedirectToAction("Unauthorized", "Error");
-        Book? Book = await GetBook(ISBN);
+        Book? Book = await GetBook(ID);
         if (Book is null)
             return RedirectToAction("NotFound", "Error");
         return ViewWithAdmin(auth, new EditableBook(Book));
     }
 
-    // POST: /Book/Edit/{ISBN}
+    // POST: /Book/Edit/{ID}
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(string? ISBN, [Bind()] EditableBook Book)
+    public async Task<IActionResult> Edit(string? ID, [Bind()] EditableBook Book)
     {
         JwtToken? token = await Token();
         if (token is null)
@@ -90,9 +90,9 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: /Book/Delete/{ISBN}
+    // GET: /Book/Delete/{ID}
     [HttpGet]
-    public async Task<IActionResult> Delete(string? ISBN)
+    public async Task<IActionResult> Delete(string? ID)
     {
         JwtToken? token = await Token();
         if (token is null)
@@ -100,7 +100,7 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
         AdminAuth auth = new(token);
         if (!auth.IsAdmin)
             return RedirectToAction("Unauthorized", "Error");
-        Book? Book = await GetBook(ISBN);
+        Book? Book = await GetBook(ID);
         if (Book is null)
             return RedirectToAction("NotFound", "Error");
         return ViewWithAdmin(auth, Book);
@@ -108,8 +108,8 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    // POST: /Book/Delete/{ISBN}
-    public async Task<IActionResult> DeleteConfirmed(string? ISBN)
+    // POST: /Book/Delete/{ID}
+    public async Task<IActionResult> DeleteConfirmed(string? ID)
     {
         JwtToken? token = await Token();
         if (token is null)
@@ -117,9 +117,9 @@ public class BookController(ILogger<BookController> logger, ITokenAcquisition to
         AdminAuth auth = new(token);
         if (!auth.IsAdmin)
             return RedirectToAction("Unauthorized", "Error");
-        if (string.IsNullOrEmpty(ISBN))
+        if (string.IsNullOrEmpty(ID))
             return RedirectToAction("NotFound", "Error");
-        await BackendCommunicator.DeleteBook(ISBN);
+        await BackendCommunicator.DeleteBook(ID);
         return RedirectToAction(nameof(Index));
     }
 }

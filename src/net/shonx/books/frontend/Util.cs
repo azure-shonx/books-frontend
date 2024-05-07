@@ -11,12 +11,4 @@ internal static class Util
             return auth.IsAdmin;
         throw new NullReferenceException("AdminAuth");
     }
-
-    internal static string GetEmail<T>(RazorPage<T> page)
-    {
-        AdminAuth? auth = page.ViewData["AdminAuth"] as AdminAuth;
-        if (auth is not null)
-            return auth.Email;
-        throw new NullReferenceException("AdminAuth");
-    }
 }

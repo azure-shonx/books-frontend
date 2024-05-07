@@ -1,9 +1,7 @@
 namespace net.shonx.books.frontend.Controllers;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
 using net.shonx.books.frontend.Data;
 using net.shonx.books.frontend.Models;
 using net.shonx.jwt;
@@ -33,24 +31,24 @@ public class ListController(ILogger<BookController> logger, ITokenAcquisition to
     }
 
     [HttpGet]
-    public async new Task<IActionResult> View(string? id)
+    public async new Task<IActionResult> View(string? ID)
     {
         JwtToken? token = await Token();
         if (token is null)
             return RedirectToAction("Unauthorized", "Error");
-        List? potential = await BackendCommunicator.GetList(id);
+        List? potential = await BackendCommunicator.GetList(ID);
         if (potential is null)
             return RedirectToAction("NotFound", "Error");
         return ViewWithAdmin(new(token), potential);
     }
 
     [HttpGet]
-    public async Task<IActionResult> Subscribe(string? id)
+    public async Task<IActionResult> Subscribe(string? ID)
     {
         JwtToken? token = await Token();
         if (token is null)
             return RedirectToAction("Unauthorized", "Error");
-        List? list = await GetList(id);
+        List? list = await GetList(ID);
         if (list is null)
             return RedirectToAction("NotFound", "Error");
         return ViewWithAdmin(new(token), new SubscribeList(list));
@@ -136,7 +134,7 @@ public class ListController(ILogger<BookController> logger, ITokenAcquisition to
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit([Bind()] EditableList list, [Bind()] List<string> SelectedBooks)
+    public async Task<IActionResult> Edit(string? ID, [Bind()] EditableList list, [Bind()] List<string> SelectedBooks)
     {
         JwtToken? token = await Token();
         if (token is null)
@@ -145,7 +143,7 @@ public class ListController(ILogger<BookController> logger, ITokenAcquisition to
         {
             if (!ValidateList(list))
                 return RedirectToAction("BadRequest", "Error");
-            List? List = await BackendCommunicator.GetList(list.old_id);
+            List? List = await BackendCommunicator.GetList(ID);
             if (List is null)
                 return RedirectToAction("NotFound", "Error");
             List.BookISBNs = SelectedBooks;
@@ -165,11 +163,42 @@ public class ListController(ILogger<BookController> logger, ITokenAcquisition to
         }
         else
         {
-            Console.WriteLine("Invalid ModelState.");
-            Console.WriteLine(list.ToJson());
-            Console.WriteLine(JsonConvert.SerializeObject(SelectedBooks));
             return RedirectToAction("BadRequest", "Error");
         }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // GET: /Book/Delete/{ID}
+    [HttpGet]
+    public async Task<IActionResult> Delete(string? ID)
+    {
+        JwtToken? token = await Token();
+        if (token is null)
+            return RedirectToAction("Unauthorized", "Error");
+        AdminAuth auth = new(token);
+        List? List = await GetList(ID);
+        if (List is null)
+            return RedirectToAction("NotFound", "Error");
+        if (!(auth.IsAdmin || List.Owner.Equals(auth.Email)))
+            return RedirectToAction("Unauthorized", "Error");
+        return ViewWithAdmin(auth, List);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    // POST: /Book/Delete/{ID}
+    public async Task<IActionResult> DeleteConfirmed(string? ID)
+    {
+        JwtToken? token = await Token();
+        if (token is null)
+            return RedirectToAction("Unauthorized", "Error");
+        AdminAuth auth = new(token);
+        List? List = await GetList(ID);
+        if (List is null)
+            return RedirectToAction("NotFound", "Error");
+        if (!(auth.IsAdmin || List.Owner.Equals(auth.Email)))
+            return RedirectToAction("Unauthorized", "Error");
+        await BackendCommunicator.DeleteList(List.Id);
         return RedirectToAction(nameof(Index));
     }
 }

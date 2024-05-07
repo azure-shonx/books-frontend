@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "notes-frontend": {
+    "books-frontend": {
       "commandName": "Project"
     }
   }
