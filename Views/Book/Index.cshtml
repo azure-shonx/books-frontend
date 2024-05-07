@@ -1,0 +1,62 @@
+@model IEnumerable<Book>
+@{
+    ViewData["Title"] = "Index - Books";
+    bool IsAdmin = Util.IsAdmin<IEnumerable<Book>>(this);
+}
+
+<div class="text-center">
+    @if (IsAdmin)
+    {
+        <p>
+            <a asp-action="Create" class="btn btn-primary">Create</a>
+        </p>
+    }
+    <div class="grid-container">
+        @foreach (Book book in Model)
+        {
+            <div class="entry">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="@book.CoverImage" width="150px">
+                        </td>
+                        <td>
+                            <h3 class="book-header">@book.Title</h3>
+                            <p>ISBN: @book.Id</p>
+                            <span>
+                                <strong>Authors</strong>
+                                <ul class="author-list">
+                                    @foreach (string author in book.Authors)
+                                    {
+                                        <li>@author</li>
+                                    }
+                                </ul>
+                            </span>
+
+                            <p>Publication Year: @book.PublicationYear</p>
+                            <p>Genre: @book.Genre</p>
+                        </td>
+                    </tr>
+                    @if (IsAdmin)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Edit" asp-route-ISBN="@book.Id" class="btn btn-primary">Edit</a>
+                            </td>
+                            <td>
+                                <a asp-action="Delete" asp-route-ISBN="@book.Id" class="btn btn-primary">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

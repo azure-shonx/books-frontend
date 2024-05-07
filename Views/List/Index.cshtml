@@ -1,0 +1,35 @@
+@model List<List>
+@{
+    ViewData["Title"] = "Index - Books";
+}
+
+<div class="text-center">
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr);">
+        <div class="list-index-entry">
+            <a asp-action="Create" class="btn btn-primary">Create</a>
+        </div>
+        <div class="list-index-entry">
+            <a asp-action="Browse" class="btn btn-primary">Browse</a>
+        </div>
+    </div>
+    <div class="grid-container">
+        @foreach (List list in Model)
+        {
+            <div class="entry">
+                <strong>@list.Id</strong>
+                <p>Contains <strong>@list.BookISBNs.Count()</strong> items with <strong>@list.Subscribers.Count()</strong>
+                    subscribers.</p>
+                <p>
+                    <a asp-action="View" asp-route-ID="@list.Id" class="btn btn-primary">View</a>
+                    <a asp-action="Edit" asp-route-ID="@list.Id" class="btn btn-primary">Edit</a>
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

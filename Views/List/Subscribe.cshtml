@@ -1,0 +1,70 @@
+@using Microsoft.IdentityModel.Tokens
+@model SubscribeList
+@{
+    ViewData["Title"] = "Subscribe - Books";
+    bool IsAdmin = Util.IsAdmin<SubscribeList>(this);
+}
+
+<div class="text-center">
+    <p><strong>@Model.List.Id</strong> by <strong>@Model.List.Owner</strong></p>
+    <div class="grid-container">
+        @foreach (Book book in Model.List.Books)
+        {
+            <div class="entry">
+                <table>
+                    <tr>
+                        <td>
+                            <img src="@book.CoverImage" width="150px">
+                        </td>
+                        <td>
+                            <h3 class="book-header">@book.Title</h3>
+                            <p>ISBN: @book.Id</p>
+                            <span>
+                                <strong>Authors</strong>
+                                <ul class="author-list">
+                                    @foreach (string author in book.Authors)
+                                    {
+                                        <li>@author</li>
+                                    }
+                                </ul>
+                            </span>
+
+                            <p>Publication Year: @book.PublicationYear</p>
+                            <p>Genre: @book.Genre</p>
+                        </td>
+                    </tr>
+                    @if (IsAdmin)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Book" asp-action="Edit" asp-route-ISBN="@book.Id"
+                                    class="btn btn-primary">Edit</a>
+                            </td>
+                            <td>
+                                <a asp-controller="Book" asp-action="Delete" asp-route-ISBN="@book.Id"
+                                    class="btn btn-primary">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+    </div>
+    <div>
+        <h4>Do you want to be subscribed to this list?</h4>
+        <form asp-action="Subscribe" asp-route-ID="@Model.Id" method="POST">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="@Model.Id" name="@Model.Id" value="@Model.Id">
+            <input type="checkbox" id="subscribe" name="subscribe" /><label>Subscribe to updates?</label>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
