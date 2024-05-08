@@ -146,6 +146,7 @@ public class ListController(ILogger<BookController> logger, ITokenAcquisition to
             List? List = await BackendCommunicator.GetList(ID);
             if (List is null)
                 return RedirectToAction("NotFound", "Error");
+            List.PreviousBookISBNs = List.BookISBNs;
             List.BookISBNs = SelectedBooks;
             AdminAuth auth = new(token);
             if (!(auth.IsAdmin || auth.Email.Equals(List.Owner)))

@@ -11,15 +11,18 @@ public class List : IJsonable
     public string Owner { get; set; }
     [JsonProperty(PropertyName = "books")]
     public List<string> BookISBNs { get; set; }
+    [JsonProperty(PropertyName = "old_books")]
+    public List<string> PreviousBookISBNs { get; set; }
     internal IEnumerable<Book> Books { get; set; }
     [JsonProperty(PropertyName = "subscribers")]
     public List<string> Subscribers { get; set; }
 
     [JsonConstructor]
-    public List(string id, string Owner, List<string> BookISBNs, List<string> Subscribers)
+    public List(string id, string Owner, List<string> BookISBNs, List<string> PreviousBookISBNs, List<string> Subscribers)
     {
         Id = id;
         this.Owner = Owner;
+        this.PreviousBookISBNs = PreviousBookISBNs;
         this.BookISBNs = BookISBNs;
         this.Subscribers = Subscribers;
         Books = BookIndex.GetBooks(BookISBNs);
@@ -31,6 +34,7 @@ public class List : IJsonable
         Id = list.id;
         Owner = list.owner;
         BookISBNs = JsonConvert.DeserializeObject<List<string>>(list.books) ?? [];
+        PreviousBookISBNs = JsonConvert.DeserializeObject<List<string>>(list.old_books) ?? [];
         Subscribers = JsonConvert.DeserializeObject<List<string>>(list.subscribers) ?? [];
         Books = BookIndex.GetBooks(BookISBNs);
     }
