@@ -16,15 +16,12 @@ internal static class Helper
         {
             request.Content = new StringContent(data.ToJson(), Encoding.UTF8, "application/json");
         }
-        //   File.AppendAllText("url-history.txt", request.RequestUri?.ToString() + Environment.NewLine);
         using HttpResponseMessage response = await httpClient.SendAsync(request);
         HttpStatusCode statusCode = response.StatusCode;
         int sc = (int)statusCode;
         if (!((sc >= 200 && sc < 300) || sc == 404))
         {
-            string error = $"Helper got response {sc}: {statusCode}";
-            await Console.Error.WriteLineAsync(error);
-            // throw new InvalidOperationException(error);
+            await Console.Error.WriteLineAsync($"Helper got response {sc}: {statusCode}");
             return default;
         }
         return await GetReply<T>(response.Content.ReadAsStream());
